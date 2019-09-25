@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import './app.css';
 import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import './app.css';
 
 /* set dimensions for google map */
 const mapStyle = {
-  height: '100vh',
-  width: '100vw'
+  'height': '100%',
+  'width': '100%'
 }
 
 class App extends Component {
@@ -22,24 +22,30 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <div className='container'>
+        {/* input form to collect start and endpoints */}
+        <div className='column left'>
+        </div>
+
         {/* load google maps script */}
-        <LoadScript
-          id="script-loader"
-          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-        >
-          {/* render map */}
-          <GoogleMap
-            id='map'
-            mapContainerStyle={mapStyle}
-            zoom={this.state.zoom}
-            center={{
-              lat: this.state.lat,
-              lng: this.state.lng
-            }}
+        <div className='column right'>
+          <LoadScript
+            id='script-loader'
+            googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
           >
-          </GoogleMap>
-        </LoadScript>
+            {/* render map */}
+            <GoogleMap
+              id='map'
+              mapContainerStyle={mapStyle}
+              zoom={this.state.zoom}
+              center={{
+                lat: this.state.lat,
+                lng: this.state.lng
+              }}
+            >
+            </GoogleMap>
+          </LoadScript>
+        </div>
       </div>
     );
   }

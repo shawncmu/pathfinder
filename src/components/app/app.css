@@ -1,1 +1,44 @@
+/********************
+* Desktop/tablet view 
+********************/
 
+.container {
+	display: flex;
+	flex-direction: row;
+}
+
+.column {
+  float: left;
+}
+
+.left {
+  width: 25%;
+}
+
+.right {
+	height: 100vh;
+  width: 75%;
+}
+
+.container:after {
+  clear: both; /* Clear floats after the columns */
+}
+
+/********************
+* Mobile view 
+********************/
+
+@media screen and (max-width: 425px) {
+	.container {
+		flex-direction: column;
+	}
+  .column {
+    width: 100%;
+  }
+  .right {
+  	max-height: 407px;
+  }
+  .left {
+  	height: 300px;
+  }
+}
