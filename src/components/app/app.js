@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete } from '@react-google-maps/api';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form'
@@ -14,6 +14,8 @@ const mapStyle = {
   'height': '100%',
   'width': '100%'
 }
+/* set libraries for react-google-maps */
+const libraries = ['places'];
 
 class App extends Component {
 
@@ -36,8 +38,8 @@ class App extends Component {
   }
 
   handleSubmit = (event) => {
-    event.preventDefault()
-    console.log(`origin: ${this.state.origin}. destination: ${this.state.destination}`)
+    event.preventDefault();
+    console.log(`origin: ${this.state.origin}. destination: ${this.state.destination}`);
   }
 
   handleRadioChange = (event) => {
@@ -51,84 +53,88 @@ class App extends Component {
   render() {
     return (
       <Container fluid={true}>
-        <Row>
-          <Col xs={12} md={4} className='form'>
-            {/* input form to collect start and endpoints */}
-            <Form onSubmit={this.handleSubmit}>
+        {/* load google maps script */}
+        <LoadScript
+          id='script-loader'
+          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+          libraries={libraries}
+        >
+          <Row>
+            <Col xs={12} md={4} className='form'>
+              {/* input form to collect start and endpoints */}
+              <Form onSubmit={this.handleSubmit}>
+                <Autocomplete>
+                  <Form.Group controlId='origin'>
+                    <Form.Label><b>Starting Location:</b></Form.Label>
+                    <Form.Control
+                      type='text'
+                      placeholder='Enter location'
+                      name='origin'
+                      value={this.state.origin}
+                      onChange={this.handleChange}
+                    />
+                  </Form.Group>
+                </Autocomplete>
 
-              <Form.Group controlId='origin'>
-                <Form.Label><b>Starting Location:</b></Form.Label>
-                <Form.Control
-                  type='text'
-                  placeholder='Enter location'
-                  name='origin'
-                  value={this.state.origin}
-                  onChange={this.handleChange}
-                />
-              </Form.Group>
+                <Autocomplete>
+                  <Form.Group controlId='destination'>
+                    <Form.Label><b>Drop-off Point:</b></Form.Label>
+                    <Form.Control
+                      type='text'
+                      placeholder='Enter location'
+                      name='destination'
+                      value={this.state.destination}
+                      onChange={this.handleChange}
+                    />
+                  </Form.Group>
+                </Autocomplete>
 
-              <Form.Group controlId='destination'>
-                <Form.Label><b>Drop-off Point:</b></Form.Label>
-                <Form.Control
-                  type='text'
-                  placeholder='Enter location'
-                  name='destination'
-                  value={this.state.destination}
-                  onChange={this.handleChange}
-                />
-              </Form.Group>
+                {/* radio input for method of travel */}
+                <Form.Group controlId='method'>
+                  <Form.Check
+                    id='radioWalk'
+                    type='radio'
+                    name='method'
+                    value='walk'
+                    label='Walk'
+                    checked={this.state.method === 'walk'}
+                    onChange={this.handleRadioChange}
+                    inline
+                  />
+                  <Form.Check
+                    id='radioDrive'
+                    type='radio'
+                    name='method'
+                    value='drive'
+                    label='Drive'
+                    checked={this.state.method === 'drive'}
+                    onChange={this.handleRadioChange}
+                    inline
+                  />
+                </Form.Group>
 
-              {/* radio input for method of travel */}
-              <Form.Group controlId='method'>
-                <Form.Check
-                  id='radioWalk'
-                  type='radio'
-                  name='method'
-                  value='walk'
-                  label='Walk'
-                  checked={this.state.method === 'walk'}
-                  onChange={this.handleRadioChange}
-                  inline
-                />
-                <Form.Check
-                  id='radioDrive'
-                  type='radio'
-                  name='method'
-                  value='drive'
-                  label='Drive'
-                  checked={this.state.method === 'drive'}
-                  onChange={this.handleRadioChange}
-                  inline
-                />
-              </Form.Group>
+                
 
-              
+                {/* submit and reset buttons */}
+                <Button
+                  variant='primary'
+                  type='submit'
+                  className='button-margin'
+                >
+                  Submit
+                </Button>
+                <Button
+                  variant='danger'
+                  type='reset'
+                  value='Reset'
+                  onClick={this.handleReset}
+                >
+                  Reset
+                </Button>
+              </Form>
+            </Col>
 
-              {/* submit and reset buttons */}
-              <Button
-                variant='primary'
-                type='submit'
-                className='button-margin'
-              >
-                Submit
-              </Button>
-              <Button
-                variant='danger'
-                type='reset'
-                value='Reset'
-                onClick={this.handleReset}
-              >
-                Reset
-              </Button>
-            </Form>
-          </Col>
-
-          {/* load google maps script */}
-          <Col xs={12} md={8} className='map-height no-padding'>
-            <LoadScript
-              id='script-loader'
-              googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-            >
+            <Col xs={12} md={8} className='map-height no-padding'>
               {/* render map */}
               <GoogleMap
                 id='map'
@@ -140,9 +146,9 @@ class App extends Component {
                 }}
               >
               </GoogleMap>
-            </LoadScript>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </LoadScript>
       </Container>
     );
   }
