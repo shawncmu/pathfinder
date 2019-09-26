@@ -20,17 +20,27 @@
   margin-right: 20px;
 }
 
+.error {
+  margin-top: 5px;
+  color: red;
+}
+
+.clear {
+  position: absolute;
+  bottom: 16px;
+}
+
 /********************
 * Mobile view 
 ********************/
 
 @media screen and (max-width: 765px) {
   .form {
-    height: 300px;
+    height: 380px;
   }
   .map-height {
   	position: absolute;
-    top: 300px;
+    top: 380px;
     bottom: 0;
     width: 100%;
     height: auto;
