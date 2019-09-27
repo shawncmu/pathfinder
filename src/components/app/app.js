@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { GoogleMap, LoadScript, Autocomplete, Polyline, Marker } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Autocomplete, Polyline, Marker, DirectionsRenderer, DirectionsService } from '@react-google-maps/api';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
@@ -50,7 +50,9 @@ class App extends Component {
       routes: [],
       totalDistance: null,
       totalTime: null,
-      loading: false
+      loading: false,
+      response: null,
+      clickedSubmit: false
     };
   }
 
@@ -76,7 +78,8 @@ class App extends Component {
     event.preventDefault();
     const {
       origin,
-      destination
+      destination,
+      method
     } = this.state;
     if (origin === '' || destination === '') {
       this.setState({ error: 'Starting location and drop off point are both required' });
@@ -84,7 +87,11 @@ class App extends Component {
     } else {
       this.setState({ error: null, loading: true });
     }
-    this.getPath();
+    if (method === 'walk') {
+      this.getPath();
+    } else if (method === 'drive') {
+      this.setState({ clickedSubmit: true, loading: true });
+    }
   }
 
   /* reset state */
@@ -100,7 +107,8 @@ class App extends Component {
       routes: [],
       totalDistance: null,
       totalTime: null,
-      loading: false
+      loading: false,
+      response: null
     });
   }
 
@@ -114,13 +122,11 @@ class App extends Component {
       }
       this.fetchWaypoints(response.token)
       .then((result) => {
-        console.log(result)
         if (result.status === 'failure') {
           this.setState({ error: result.error, loading: false });
           return;
         }
         if (result.status === 'in progress') {
-          console.log('inprogress');
           this.getPath();
         } else if (result.path) {
           const path = result.path.map((elem) => {
@@ -148,7 +154,6 @@ class App extends Component {
       body: JSON.stringify({ origin, destination })
     })
     .then((res) => {
-      console.log(res);
       if (res.status && res.status === 500) {
         return { status: 'failure', error: 'Unable to process your request at this time. Please try again later' }
       }
@@ -159,7 +164,6 @@ class App extends Component {
   fetchWaypoints = (token) => {
     return fetch(`https://mock-api.dev.lalamove.com/route/${token}`)
     .then((res) => {
-      console.log(res);
       if (res.status && res.status === 500) {
         return { status: 'failure', error: 'Unable to process your request at this time. Please try again later' }
       }
@@ -195,6 +199,17 @@ class App extends Component {
     }
   }
 
+  /* get drive path results from google */
+  directionsCallback = (response) => {
+    if (response !== null) {
+      if (response.status === 'OK') {
+        this.setState(() => ({ response, clickedSubmit: false, loading: false }));
+      } else {
+        this.setState(() => ({ error: 'No results', loading: false }));
+      }
+    }
+  }
+
   render() {
     const {
       lat,
@@ -207,7 +222,9 @@ class App extends Component {
       routes,
       totalDistance,
       totalTime,
-      loading
+      loading,
+      response,
+      clickedSubmit
     } = this.state;
     return (
       <Container fluid>
@@ -243,7 +260,6 @@ class App extends Component {
                     <Button
                       className="clear"
                       variant="warning"
-                      type="reset"
                       value="Clear"
                       name="origin"
                       onClick={this.handleClear}
@@ -274,7 +290,6 @@ class App extends Component {
                     <Button
                       className="clear"
                       variant="warning"
-                      type="reset"
                       value="Clear"
                       name="destination"
                       onClick={this.handleClear}
@@ -409,6 +424,31 @@ class App extends Component {
                   path={routes}
                   options={polylineStyle}
                 />
+
+                {/* render driving directions */
+                  (
+                    method === 'drive' && clickedSubmit
+                  ) && (
+                    <DirectionsService
+                      options={{
+                        destination: destination,
+                        origin: origin,
+                        travelMode: 'DRIVING'
+                      }}
+                      callback={this.directionsCallback}
+                    />
+                  )
+                }
+
+                {
+                  response !== null && (
+                    <DirectionsRenderer
+                      options={{
+                        directions: response
+                      }}
+                    />
+                  )
+                }
               </GoogleMap>
             </Col>
           </Row>
