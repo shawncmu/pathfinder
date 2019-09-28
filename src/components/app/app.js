@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-import { GoogleMap, LoadScript, Autocomplete, Polyline, Marker, DirectionsRenderer, DirectionsService } from '@react-google-maps/api';
+import { LoadScript } from '@react-google-maps/api';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
-// import LocationForm from '../LocationForm';
+import DisplayMap from '../map';
+import LocationForm from '../locationForm';
 
 /* set dimensions for google map */
 const mapStyle = {
@@ -237,219 +235,42 @@ class App extends Component {
           <Row>
             <Col xs={12} md={4} className="form">
               {/* input form to collect start and endpoints */}
-              <Form onSubmit={this.handleSubmit}>
-                <Row>
-                  <Col xs={8}>
-                    <Autocomplete
-                      onLoad={this.onLoadOrigin}
-                      onPlaceChanged={this.onOriginChanged}
-                    >
-                      <Form.Group controlId="origin">
-                        <Form.Label><b>Starting Location:</b></Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter location"
-                          name="origin"
-                          value={origin}
-                          onChange={this.handleChange}
-                        />
-                      </Form.Group>
-                    </Autocomplete>
-                  </Col>
-                  <Col xs={4} className="no-padding">
-                    <Button
-                      className="clear"
-                      variant="warning"
-                      value="Clear"
-                      name="origin"
-                      onClick={this.handleClear}
-                    >
-                      Clear
-                    </Button>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={8}>
-                    <Autocomplete
-                      onLoad={this.onLoadDestination}
-                      onPlaceChanged={this.onDestinationChanged}
-                    >
-                      <Form.Group controlId="destination">
-                        <Form.Label><b>Drop-off Point:</b></Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter location"
-                          name="destination"
-                          value={destination}
-                          onChange={this.handleChange}
-                        />
-                      </Form.Group>
-                    </Autocomplete>
-                  </Col>
-                  <Col xs={4} className="no-padding">
-                    <Button
-                      className="clear"
-                      variant="warning"
-                      value="Clear"
-                      name="destination"
-                      onClick={this.handleClear}
-                    >
-                      Clear
-                    </Button>
-                  </Col>
-                </Row>
-
-                {/* radio input for method of travel */}
-                <Form.Group controlId="method">
-                  <Form.Check
-                    id="radioWalk"
-                    type="radio"
-                    name="method"
-                    value="walk"
-                    label="Walk"
-                    checked={method === 'walk'}
-                    onChange={this.handleRadioChange}
-                    inline
-                  />
-                  <Form.Check
-                    id="radioDrive"
-                    type="radio"
-                    name="method"
-                    value="drive"
-                    label="Drive"
-                    checked={method === 'drive'}
-                    onChange={this.handleRadioChange}
-                    inline
-                  />
-                </Form.Group>
-
-                { /* display distance and time on success response with waypoints */
-                  totalDistance ?
-                    (
-                      <div>
-                        <p>
-                          <b>Total distance:</b>
-                          {totalDistance}
-                        </p>
-                      </div>
-                    )
-                  :
-                    null
-                }
-                {
-                  totalTime ?
-                    (
-                      <div>
-                        <p>
-                          <b>Total time:</b>
-                          {totalTime}
-                        </p>
-                      </div>
-                    )
-                  :
-                    null
-                }
-
-                {/* submit and reset buttons */}
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="button-margin"
-                  disabled={loading}
-                >
-                  {
-                    loading ?
-                      (
-                        <div>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                          Loading...
-                        </div>
-                      )
-                    :
-                      (
-                        <div>
-                          Submit
-                        </div>
-                      )
-                  }
-                </Button>
-                <Button
-                  variant="danger"
-                  type="reset"
-                  value="Reset"
-                  onClick={this.handleReset}
-                >
-                  Reset
-                </Button>
-              </Form>
-
-              { /* display error */
-                error ?
-                  (
-                    <div>
-                      <p className="error"><b>{error}</b></p>
-                    </div>
-                  )
-                :
-                  null
-              }
+              <LocationForm
+                handleSubmit={this.handleSubmit}
+                onLoadOrigin={this.onLoadOrigin}
+                onOriginChanged={this.onOriginChanged}
+                origin={origin}
+                handleChange={this.handleChange}
+                handleClear={this.handleClear}
+                onLoadDestination={this.onLoadDestination}
+                onDestinationChanged={this.onDestinationChanged}
+                destination={destination}
+                method={method}
+                handleRadioChange={this.handleRadioChange}
+                totalDistance={totalDistance}
+                totalTime={totalTime}
+                loading={loading}
+                handleReset={this.handleReset}
+                error={error}
+              />
             </Col>
 
             <Col xs={12} md={8} className="map-height no-padding">
               {/* render map */}
-              <GoogleMap
-                id="map"
-                mapContainerStyle={mapStyle}
+              <DisplayMap
+                mapStyle={mapStyle}
                 zoom={zoom}
-                center={{ lat, lng }}
-              >
-                { /* add markers to display order of path */
-                  routes ?
-                    routes.map((elem, index) => {
-                      const label = (index + 1).toString();
-                      return <Marker key={label} position={elem} label={label} />;
-                    })
-                  :
-                    null
-                }
-
-                {/* render path on map on success response with waypoints */}
-                <Polyline
-                  path={routes}
-                  options={polylineStyle}
-                />
-
-                {/* render driving directions */
-                  (
-                    method === 'drive' && clickedSubmit
-                  ) && (
-                    <DirectionsService
-                      options={{
-                        destination: destination,
-                        origin: origin,
-                        travelMode: 'DRIVING'
-                      }}
-                      callback={this.directionsCallback}
-                    />
-                  )
-                }
-
-                {
-                  response !== null && (
-                    <DirectionsRenderer
-                      options={{
-                        directions: response
-                      }}
-                    />
-                  )
-                }
-              </GoogleMap>
+                lat={lat}
+                lng={lng}
+                routes={routes}
+                polylineStyle={polylineStyle}
+                method={method}
+                clickedSubmit={clickedSubmit}
+                destination={destination}
+                origin={origin}
+                response={response}
+                directionsCallback={this.directionsCallback}
+              />
             </Col>
           </Row>
         </LoadScript>
