@@ -43,6 +43,7 @@ function LocationForm (props) {
                   type="text"
                   placeholder="Enter location"
                   name="origin"
+                  className="origin"
                   value={origin}
                   onChange={handleChange}
                 />
