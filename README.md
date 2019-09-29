@@ -1,14 +1,16 @@
 
 ### Running the project
 **pre requisites**
-- nodeJS
+- nodeJS v10.16.3+
 - npm
 
 **run the project**
 
 *development*
+
+In the root directory:
+
 ```
-In root directory:
 1. npm install
 2. create file called ".env.local" in root directory. Add the following line:
 REACT_APP_GOOGLE_MAPS_API_KEY=<<YOUR GOOGLE API KEY HERE>>
