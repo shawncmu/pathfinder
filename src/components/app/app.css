@@ -1,22 +1,39 @@
-.App {
-  text-align: center;
+/********************
+* Desktop/tablet view 
+********************/
+
+.map-height {
+	height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
+.no-padding {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.form {
+  padding-top: 15px;
+  background-color: #b9cae2;
 }
 
-.App-link {
-  color: #09d3ac;
+.clear {
+  position: absolute;
+  bottom: 16px;
+}
+
+/********************
+* Mobile view 
+********************/
+
+@media screen and (max-width: 765px) {
+  .form {
+    height: 380px;
+  }
+  .map-height {
+  	position: absolute;
+    top: 380px;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+  }
 }
